@@ -1,5 +1,3 @@
+require "yaml" unless defined?(YAML)
 require "country_with_currency/version"
-
-module CountryWithCurrency
-  # Your code goes here...
-end
+require "country_with_currency/country"
