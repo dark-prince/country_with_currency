@@ -70,7 +70,7 @@ class Country
     end
     
     def select_by(attribute, val)
-      attr, value = parse_attributes(attribute.downcase, (val ? val.downcase : val))
+      attr, value = parse_attributes(attribute.downcase, (val ? val.to_s.downcase : val))
 
       data = countries.select { |c| c.send(attr.to_sym).downcase == value }
       validate(data)
