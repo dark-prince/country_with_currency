@@ -1,4 +1,9 @@
 class Country
+  # @return [Integer] Returns the Number of country.
+  # @return [Integer] Returns the ISO 3166-1 code of country.
+  # @return [Integer] Returns the ISO 4217 code of currency.
+  # @return [String] Returns the Name of country.
+  # @return [String] Returns the Symbol of currency.
   attr_reader :number, :iso, :currency, :name, :symbol
   
   # Thrown when an unknown country is requested.
@@ -7,19 +12,47 @@ class Country
   # Thrown when an unknown attribute is requested.
   class UnknownAttribute < StandardError; end
 
+  def initialize(data={})
+    @number = data["number"]
+    @iso = data["iso3"]
+    @currency = data["currency"]
+    @name = data["name"]
+    @symbol = data["symbol"]
+  end
+
   class << self
     attr_accessor :countries
     attr_reader :alpha3
 
+    # All countries
+    #
+    # Example
+    #
+    # Country.all
+    #
+    # Returns an Array with value of all country objects
     def all
       countries
     end
     
-    # Define on self, since it's a class method
-    def method_missing(*arguments)
-      regex = arguments.first.to_s.match(/^find_by_(.*)/)
+    # Overriding method_missing to add dynamic finders.
+    #
+    # *args - standard method_missing arguments
+    #
+    # Examples
+    #
+    # Country.find_by_iso("USA")
+    # Country.find_by_name("United States")
+    #
+    # Returns an Array with value of country object/objects
+    # Raises NoMethodError if couldn't find a method
+    # Raises UnknownAttribute if couldn't find a valid attribute
+    # Raises UnknownCountry if couldn't find any country object
+    def method_missing(*args)
+      regex = args.first.to_s.match(/^find_by_(.*)/)
+      # Check if the missing method applies to Country
       super if !regex || $1.nil?
-      @alpha3 = arguments[1]
+      @alpha3 = args[1]
       select_by($1, @alpha3)
     end
 
@@ -56,14 +89,6 @@ class Country
     end
 
     private :new
-  end
-  
-  def initialize(data={})
-    @number = data["number"]
-    @iso = data["iso3"]
-    @currency = data["currency"]
-    @name = data["name"]
-    @symbol = data["symbol"]
   end
 
   load_file(File.join(File.dirname(__FILE__), '..', 'data', 'countries.yaml'))
